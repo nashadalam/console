@@ -1,5 +1,4 @@
 [![Build Status][]](https://travis-ci.org/box-project/php-console)
-[![Coverage Status][]](https://coveralls.io/r/box-project/php-console?branch=master)
 [![Latest Stable Version][]](https://packagist.org/packages/box-project/console)
 [![Latest Unstable Version][]](https://packagist.org/packages/box-project/console)
 [![Total Downloads][]](https://packagist.org/packages/box-project/console)
@@ -7,19 +6,10 @@
 Console
 =======
 
-Uses a dependency injection container to create and integrate a command line
-application.
-
-The Box Console component allows developers to create a Symfony Console
-application while using Symfony DependencyInjection to manage dependencies.
-This provides a greater degree of flexibility without (in most cases) modifying
-existing source code, and better opportunities to create unit tests.
-
-
-Example
--------
-
-Creating a new console application is very simple.
+The Box Console component helps you create a command line application using
+the inversion of control pattern, powered by existing [Symfony][] components.
+All of the wiring is taken care of for you. All that is left is creating your
+console commands.
 
 **console:**
 
@@ -33,11 +23,10 @@ use Box\Component\Console\Application;
 require __DIR__ . '/vendor/autoload.php';
 
 // launch the application
-$app = new Application();
-$app->run();
+(new Application())
+    ->load('services.xml')
+    ->run();
 ```
-
-Like the Symfony Console, you will receive the expected output:
 
 ```
 Console Tool
@@ -48,13 +37,14 @@ Usage:
 Options:
  --help (-h)           Display this help message
  --quiet (-q)          Do not output any message
- --verbose (-v|vv|vvv) Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+ --verbose (-v|vv|vvv) Increase the verbosity of messages: [...]
  --version (-V)        Display this application version
  --ansi                Force ANSI output
  --no-ansi             Disable ANSI output
  --no-interaction (-n) Do not ask any interactive question
 
 Available commands:
+ example           My example command
  help              Displays help for a command
  list              Lists commands
 container
@@ -63,16 +53,193 @@ debug
  debug:container   Displays current services for an application
 ```
 
-Features
---------
+Preparation
+-----------
 
-### debug:container
+Before we begin, you will want to familiarize yourself with the software this
+component uses. It heavily relies on a few Symfony components to do most of its
+work. For convenience, documentation to each of these components are available
+below.
+
+- [Symfony Console][]
+- [Symfony DependencyInjection][] - You will be most interested in documentation
+  about how to create definitions using either closures or configuration files.
+  All other work is handled by the Box Console component, so you can skip those
+  parts if they are not related to your work.
+- [Symfony EventDispatcher][] - You will be most interested in documentation
+  about how to create your own listener and/or subscriber. An explanation will
+  later be provided on how to actual use those in the application you are
+  creating.
+
+Getting Started
+---------------
+
+To begin, you will need to create a new script. We'll call it `console` in our
+examples below. You will also need to make the script executable (`chmod 755`).
+
+```php
+#!/usr/bin/env php
+<?php
+
+// load the library here
+
+use Box\Component\Console\Application;
+```
+
+### Application Information
+
+By default, all applications are created with the name and version of `UNKNOWN`.
+When the application is run, the default application information will be shown.
+
+```
+Console Tool
+```
+
+To specify your own name and version, you will need to pass them as arguments
+when you create your instance for the Application class.
+
+```
+$app = new Application('Example', '0.0.0');
+```
+
+```
+Example version 0.0.0
+```
+
+### Loading Services
+
+When run on its own without and configuration, the application will simply
+display a help screen and a list of commands that are currently available.
+To add your own services (commands, helpers, listeners, and subscribers),
+you will need to load them.
+
+#### Closures
+
+You can add your own service definitions by using a closure.
+
+```php
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+
+$app->load(
+    function (ContainerBuilder $container) {
+        // define here
+    }
+);
+```
+
+#### Files
+
+You can load your service definitions from files.
+
+```php
+$app->load('/path/to/services.xml');
+```
+
+While you are expected to provide an absolute path to the configuration files,
+you may also provide a relative file path. Note, however, that relative files
+will always be expected to be available from the current working directory
+path.
+
+The following types of files are supported:
+
+- INI
+- PHP (similar to using a closure)
+- XML
+- YAML
+
+### Defining Services
+
+You've learned how you can load your services, which is great and all, but how
+do you actually create them? While registering services are, for the most part,
+all very similar, there are some subtle variations that are very important.
+
+#### Commands
+
+To register a command, you will need to use the `box.console.command` tag.
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<container>
+  <parameters>
+    <parameter key="example.command.class">Example\Command</parameter>
+  </parameters>
+  <services>
+    <service class="%example.command.class%" id="example.command">
+      <tag name="box.console.command"/>
+    </service>
+  </services>
+</container>
+```
+
+#### Helpers
+
+To register a command, you will need to use the `box.console.helper` tag.
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<container>
+  <parameters>
+    <parameter key="example.helper.class">Example\Helper</parameter>
+  </parameters>
+  <services>
+    <service class="%example.helper.class%" id="example.helper">
+      <tag name="box.console.helper"/>
+    </service>
+  </services>
+</container>
+```
+
+#### Events
+
+You can find a complete listing of console events in the official Symfony
+Console documentation about [`ConsoleEvents`][].
+
+##### Listener
+
+To register an event listener, you will need to use the
+`box.console.event.listener` tag with the `event` and `method` attributes
+defined.
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<container>
+  <parameters>
+    <parameter key="example.listener.class">Example\Listener</parameter>
+  </parameters>
+  <services>
+    <service class="%example.listener.class%" id="example.listener">
+      <tag name="box.console.event.listener" event="console.command" method="myMethod"/>
+    </service>
+  </services>
+</container>
+```
+
+##### Subscriber
+
+To register an event subscriber, you will need to use the
+`box.console.event.subscriber` tag.
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<container>
+  <parameters>
+    <parameter key="example.subscriber.class">Example\Subscriber</parameter>
+  </parameters>
+  <services>
+    <service class="%example.subscriber.class%" id="example.subscriber">
+      <tag name="box.console.event.subscriber"/>
+    </service>
+  </services>
+</container>
+```
+
+### Debugging Services
 
 In the example you may have noticed the addition of a non-standard command. The
 `debug:container` (`container:debug`) command is provided by Symfony's
 FrameworkBundle bundle, which allows you to view the contents of the dependency
 injection container. This is very useful for when you are experiencing issues
-when adding new services.
+when adding new or modifying existing services.
 
 ```
 $ ./console debug:container
@@ -93,102 +260,13 @@ $ ./console debug:container
 To search for a service, re-run this command with a search term. debug:container log
 ```
 
-### Load Definitions
-
-The component provide support for loading definitions using closures, and
-configuration files (INI, PHP, XML, and YAML). You can find documentation
-on how to create these files in the official [DependencyInjection documentation][].
-You can safely ignore the part about creating loaders since that is already
-handled by this component.
-
-#### Closures
-
-```php
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-
-$app->load(
-    function (ContainerBuilder $container) {
-        // add definitions
-    }
-);
-```
-
-#### Files
-
-```php
-$app->load('/path/to/services.ini');
-$app->load('/path/to/services.php');
-$app->load('/path/to/services.xml');
-$app->load('/path/to/services.yml');
-```
-
-### Event Dispatcher
-
-The Symfony EventDispatcher component is used to observe events triggered in
-the Console component. You can find a list of observable events in Symfony's
-[official documentation][].
-
-You can register your event listeners and subscribers using tagged services.
-
-```xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<container
-    xmlns="http://symfony.com/schema/dic/services"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
->
-
-  <parameters>
-    <parameter key="example.listener.class">Example\Listener</parameter>
-    <parameter key="example.subscriber.class">Example\Subscriber</parameter>
-  </parameters>
-
-  <services>
-    <service class="%example.listener.class%" id="example.listener">
-      <tag name="box.console.event.listener" event="console.command" method="doSomething"/>
-    </service>
-    <service class="%example.subscriber.class%" id="example.subscriber">
-      <tag name="box.console.event.subscriber"/>
-    </service>
-  </services>
-
-</container>
-```
-
-### Register via Tags
-
-You can register commands and helpers by using tagged services.
-
-```xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<container
-    xmlns="http://symfony.com/schema/dic/services"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
->
-
-  <parameters>
-    <parameter key="example.command.class">Example\Command</parameter>
-    <parameter key="example.helper.class">Example\Helper</parameter>
-  </parameters>
-
-  <services>
-    <service class="%example.command.class%" id="example.command">
-      <tag name="box.console.command"/>
-    </service>
-    <service class="%example.helper.class%" id="example.helper">
-      <tag name="box.console.helper"/>
-    </service>
-  </services>
-
-</container>
-```
-
 [Build Status]: https://travis-ci.org/box-project/php-console.png?branch=master
-[Coverage Status]: https://coveralls.io/repos/box-project/php-console/badge.png?branch=master
 [Latest Stable Version]: https://poser.pugx.org/box-project/console/v/stable.png
 [Latest Unstable Version]: https://poser.pugx.org/box-project/console/v/unstable.png
 [Total Downloads]: https://poser.pugx.org/box-project/console/downloads.png
 
-[official documentation]: http://symfony.com/doc/current/components/console/events.html
-[DependencyInjection documentation]: http://symfony.com/doc/current/components/dependency_injection/introduction.html#setting-up-the-container-with-configuration-files
+[Symfony]: http://symfony.org/
+[Symfony Console]: http://symfony.com/doc/current/components/console/index.html
+[Symfony DependencyInjection]: http://symfony.com/doc/current/components/dependency_injection/index.html
+[Symfony EventDispatcher]: http://symfony.com/doc/current/components/event_dispatcher/index.html
+[`ConsoleEvents`]: http://symfony.com/doc/current/components/console/events.html
