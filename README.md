@@ -235,8 +235,8 @@ To register an event subscriber, you will need to use the
 ### Debugging Services
 
 In the output of the opening example (near the top of the documentation), you
-may have noticed the addition of a non-standard command. The `debug:container`
-(`container:debug`) command is provided by Symfony's FrameworkBundle bundle,
+may have noticed the `debug:container` (`container:debug`) command. The 
+`debug:container` command is provided by Symfony's FrameworkBundle bundle,
 which allows you to view the contents of the dependency injection container.
 This is very useful for when you are experiencing issues when adding new or
 modifying existing services.
