@@ -8,10 +8,8 @@ Console
 
 The Box Console component helps you create a command line application using
 the inversion of control pattern, powered by existing [Symfony][] components.
-All of the wiring is taken care of for you. All that is left is creating your
-console commands.
-
-**console:**
+All of the wiring is taken care of for you, and all that remains is creating
+your console commands.
 
 ```php
 #!/usr/bin/env php
@@ -58,10 +56,12 @@ Preparation
 
 Before we begin, you will want to familiarize yourself with the software this
 component uses. It heavily relies on a few Symfony components to do most of its
-work. For convenience, documentation to each of these components are available
-below.
+work. For convenience, links to the documentation for each of these components
+are available below.
 
-- [Symfony Console][]
+- [Symfony Console][] - You will be most interested in documentation on how to
+  create your own commands and helpers, especially the sections about accepting
+  input and rendering output.
 - [Symfony DependencyInjection][] - You will be most interested in documentation
   about how to create definitions using either closures or configuration files.
   All other work is handled by the Box Console component, so you can skip those
@@ -74,8 +74,7 @@ below.
 Getting Started
 ---------------
 
-To begin, you will need to create a new script. We'll call it `console` in our
-examples below. You will also need to make the script executable (`chmod 755`).
+To begin, you will need to create a new script.
 
 ```php
 #!/usr/bin/env php
@@ -98,7 +97,7 @@ Console Tool
 To specify your own name and version, you will need to pass them as arguments
 when you create your instance for the Application class.
 
-```
+```php
 $app = new Application('Example', '0.0.0');
 ```
 
@@ -108,7 +107,7 @@ Example version 0.0.0
 
 ### Loading Services
 
-When run on its own without and configuration, the application will simply
+When run on its own without any configuration, the application will simply
 display a help screen and a list of commands that are currently available.
 To add your own services (commands, helpers, listeners, and subscribers),
 you will need to load them.
@@ -235,11 +234,12 @@ To register an event subscriber, you will need to use the
 
 ### Debugging Services
 
-In the example you may have noticed the addition of a non-standard command. The
-`debug:container` (`container:debug`) command is provided by Symfony's
-FrameworkBundle bundle, which allows you to view the contents of the dependency
-injection container. This is very useful for when you are experiencing issues
-when adding new or modifying existing services.
+In the output of the opening example (near the top of the documentation), you
+may have noticed the addition of a non-standard command. The `debug:container`
+(`container:debug`) command is provided by Symfony's FrameworkBundle bundle,
+which allows you to view the contents of the dependency injection container.
+This is very useful for when you are experiencing issues when adding new or
+modifying existing services.
 
 ```
 $ ./console debug:container
