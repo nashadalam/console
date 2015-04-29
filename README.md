@@ -1,4 +1,4 @@
-[![Build Status][]](https://travis-ci.org/box-project/php-console)
+[![Build Status][]](https://travis-ci.org/box-project/console)
 [![Latest Stable Version][]](https://packagist.org/packages/box-project/console)
 [![Latest Unstable Version][]](https://packagist.org/packages/box-project/console)
 [![Total Downloads][]](https://packagist.org/packages/box-project/console)
@@ -260,7 +260,7 @@ $ ./console debug:container
 To search for a service, re-run this command with a search term. debug:container log
 ```
 
-[Build Status]: https://travis-ci.org/box-project/php-console.png?branch=master
+[Build Status]: https://travis-ci.org/box-project/console.png?branch=master
 [Latest Stable Version]: https://poser.pugx.org/box-project/console/v/stable.png
 [Latest Unstable Version]: https://poser.pugx.org/box-project/console/v/unstable.png
 [Total Downloads]: https://poser.pugx.org/box-project/console/downloads.png
