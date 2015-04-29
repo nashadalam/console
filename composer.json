@@ -1,0 +1,46 @@
+{
+    "name": "box-project/console",
+    "description": "A console application managed by a dependency injection container",
+    "keywords": ["console"],
+    "license": "MIT",
+    "homepage": "http://box-project.org",
+    "support": {
+        "issues": "https://github.com/box-project/console/issues",
+        "source": "https://github.com/box-project/console",
+        "wiki": "https://github.com/box-project/console/wiki"
+    },
+
+    "authors": [
+        {
+            "name": "Kevin Herrera",
+            "email": "kevin@herrera.io",
+            "homepage": "http://kevin.herrera.io/",
+            "role": "Developer"
+        }
+    ],
+
+    "autoload": {
+        "psr-4": {
+            "Box\\Component\\Console\\": "src/Box/Component/Console"
+        }
+    },
+
+    "config": {
+        "bin-dir": "bin"
+    },
+
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    },
+
+    "require": {
+        "php": ">=5.4",
+        "symfony/symfony": "~2.3"
+    },
+
+    "require-dev": {
+        "phpunit/phpunit": "~4.6"
+    }
+}
