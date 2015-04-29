@@ -1,0 +1,9 @@
+# composer directories
+/bin/
+/vendor/
+
+# composer files
+/composer.lock
+
+# phpunit files
+/phpunit.xml
