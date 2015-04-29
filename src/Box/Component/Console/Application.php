@@ -19,6 +19,7 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 
 /**
  * A console application managed by a dependency injection container.
@@ -112,11 +113,19 @@ class Application
         $container = new ContainerBuilder();
         $container->addCompilerPass(new CommandPass());
         $container->addCompilerPass(new HelperPass());
+        $container->addCompilerPass(
+            new RegisterListenersPass(
+                'box.console.event_dispatcher',
+                'box.console.event.listener',
+                'box.console.event.subscriber'
+            )
+        );
         $container->setParameter('box.console.name', $name);
         $container->setParameter('box.console.version', $version);
 
         $this->setConsoleDefinition($container);
         $this->setContainerDefinitions($container);
+        $this->setEventDispatcherDefinition($container);
         $this->setHelperDefinitions($container);
         $this->setHelperSetDefinition($container);
 
@@ -203,6 +212,37 @@ class Application
         $helper->addTag('box.console.helper');
 
         $container->setDefinition('box.console.helper.container', $helper);
+    }
+
+    /**
+     * Sets the definition for the event dispatcher.
+     *
+     * @param ContainerBuilder $container The container builder.
+     */
+    private function setEventDispatcherDefinition(ContainerBuilder $container)
+    {
+        $container->setParameter(
+            'box.console.event_dispatcher.class',
+            'Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher'
+        );
+
+        $definition = new Definition('%box.console.event_dispatcher.class%');
+        $definition->addArgument(new Reference('service_container'));
+
+        $container->setDefinition(
+            'box.console.event_dispatcher',
+            $definition
+        );
+
+        $container
+            ->getDefinition('box.console')
+            ->addMethodCall(
+                'setDispatcher',
+                array(
+                    new Reference('box.console.event_dispatcher')
+                )
+            )
+        ;
     }
 
     /**

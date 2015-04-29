@@ -4,9 +4,11 @@ namespace Box\Component\Console\Tests;
 
 use Box\Component\Console\Application;
 use PHPUnit_Framework_TestCase as TestCase;
+use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * Verifies that the class functions as intended.
@@ -33,6 +35,7 @@ class ApplicationTest extends TestCase
      * @covers \Box\Component\Console\Application::run
      * @covers \Box\Component\Console\Application::setConsoleDefinition
      * @covers \Box\Component\Console\Application::setContainerDefinitions
+     * @covers \Box\Component\Console\Application::setEventDispatcherDefinition
      * @covers \Box\Component\Console\Application::setHelperDefinition
      * @covers \Box\Component\Console\Application::setHelperDefinitions
      * @covers \Box\Component\Console\Application::setHelperSetDefinition
@@ -42,6 +45,20 @@ class ApplicationTest extends TestCase
         $this->application->load(
             function (ContainerBuilder $container) {
                 $container->setParameter('box.console.auto_exit', false);
+
+                $listener = new Definition(
+                    'Box\Component\Console\Tests\Test\EventListener'
+                );
+
+                $listener->addTag(
+                    'box.console.event.listener',
+                    array(
+                        'event' => ConsoleEvents::TERMINATE,
+                        'method' => 'sayHello'
+                    )
+                );
+
+                $container->setDefinition('test_listener', $listener);
             }
         );
 
@@ -53,18 +70,15 @@ class ApplicationTest extends TestCase
 
         $stream = fopen('php://memory', 'r+');
         $output = new StreamOutput($stream);
-
-        self::assertEquals(
-            0,
-            $this->application->run($input, $output)
-        );
+        $status = $this->application->run($input, $output);
 
         rewind($stream);
 
-        self::assertContains(
-            'box.console',
-            fread($stream, 9999)
-        );
+        $output = fread($stream, 9999);
+
+        self::assertContains('box.console', $output);
+        self::assertContains('Hello, world!', $output);
+        self::assertEquals(0, $status);
 
         fclose($stream);
     }
