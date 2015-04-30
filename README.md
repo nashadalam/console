@@ -224,6 +224,7 @@ $app
     ->load('services')
     ->run()
 ;
+```
 
 ### Defining Services
 
