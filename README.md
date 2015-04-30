@@ -6,6 +6,8 @@
 Console
 =======
 
+    $ composer require box-project/console
+
 The Box Console component helps you create a command line application using
 the inversion of control pattern, powered by existing [Symfony][] components.
 All of the wiring is taken care of for you, and all that remains is creating
@@ -88,7 +90,8 @@ use Box\Component\Console\Application;
 ### Application Information
 
 By default, all applications are created with the name and version of `UNKNOWN`.
-When the application is run, the default application information will be shown.
+When you run the application without any arguments, or if the `--version` option
+is used, the application information will be shown.
 
 ```
 Console Tool
@@ -151,6 +154,10 @@ The following types of files are supported:
 You've learned how you can load your services, which is great and all, but how
 do you actually create them? While registering services are, for the most part,
 all very similar, there are some subtle variations that are very important.
+
+> Remember, while the examples use XML, you may use any supported format that
+> is listed listed above in **Files**. You may want to look at the [wiki][] to
+> find examples in other formats.
 
 #### Commands
 
@@ -260,6 +267,11 @@ $ ./console debug:container
 To search for a service, re-run this command with a search term. debug:container log
 ```
 
+License
+-------
+
+This software is released under the [MIT License](LICENSE).
+
 [Build Status]: https://travis-ci.org/box-project/console.png?branch=master
 [Latest Stable Version]: https://poser.pugx.org/box-project/console/v/stable.png
 [Latest Unstable Version]: https://poser.pugx.org/box-project/console/v/unstable.png
@@ -270,3 +282,4 @@ To search for a service, re-run this command with a search term. debug:container
 [Symfony DependencyInjection]: http://symfony.com/doc/current/components/dependency_injection/index.html
 [Symfony EventDispatcher]: http://symfony.com/doc/current/components/event_dispatcher/index.html
 [`ConsoleEvents`]: http://symfony.com/doc/current/components/console/events.html
+[wiki]: https://github.com/box-project/console/wiki
