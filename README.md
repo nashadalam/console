@@ -149,6 +149,55 @@ The following types of files are supported:
 - XML
 - YAML
 
+##### Distribution Configuration Files
+
+Some applications bundle their own configuration files that are loaded by
+default if the user has not provided their own configuration file. These are
+called distribution configuration files. It may look more familiar with this
+example:
+
+- `phpunit.xml.dist` - The configuration file provided by a library or app.
+- `phpunit.xml` - The customized version of the configuration file.
+
+PHPUnit will first look for `phpunit.xml` and attempt to load it. If that file
+does not exist, it will then look for `phpunit.xml.dist` and attempt to load
+that one instead.
+
+To add this behavior to your application, you will want to include the following
+snippet into your script before any configuration files are loaded. It will take
+any resource that is being loaded and append `.dist` if it fails to load on the
+first try.
+
+```php
+$app->getLoader()->addTry(
+    function ($resource, $type) {
+        return array($resource . '.dist', $type);
+    }
+);
+```
+
+You should end up with something like this:
+
+```php
+use Box\Component\Console\Application;
+
+$app = new Application('Example', '0.0.0');
+$app
+    ->getLoader()
+    ->addTry(
+        function ($resource, $type) {
+            return array($resource . '.dist', $type);
+        }
+    )
+    ->load('services.xml')
+    ->run()
+;
+```
+
+The application will first look for `services.xml`, and then `services.xml.dist`
+if the original file could not be found. If necessary, you can use `addTry()`
+multiple times to try other resources and types.
+
 ### Defining Services
 
 You've learned how you can load your services, which is great and all, but how
