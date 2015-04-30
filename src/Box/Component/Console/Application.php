@@ -4,6 +4,7 @@ namespace Box\Component\Console;
 
 use Box\Component\Console\Compiler\CommandPass;
 use Box\Component\Console\Compiler\HelperPass;
+use Box\Component\Console\Loader\TryLoader;
 use ReflectionMethod;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -45,7 +46,7 @@ class Application
     /**
      * The resource loader.
      *
-     * @var DelegatingLoader
+     * @var TryLoader
      */
     private $loader;
 
@@ -62,15 +63,26 @@ class Application
     }
 
     /**
-     * Loads a resource.
+     * Returns the configuration loader.
      *
-     * @param mixed $resource The resource to load.
+     * @return TryLoader The configuration loader.
+     */
+    public function getLoader()
+    {
+        return $this->loader;
+    }
+
+    /**
+     * Loads a configuration resource.
+     *
+     * @param mixed       $resource The resource to load.
+     * @param null|string $type     The type of the resource.
      *
      * @return Application For method chaining.
      */
-    public function load($resource)
+    public function load($resource, $type = null)
     {
-        $this->loader->load($resource);
+        $this->loader->load($resource, $type);
 
         return $this;
     }
@@ -143,14 +155,16 @@ class Application
     {
         $locator = new FileLocator(array());
 
-        return new DelegatingLoader(
-            new LoaderResolver(
-                array(
-                    new ClosureLoader($container, $locator),
-                    new IniFileLoader($container, $locator),
-                    new PhpFileLoader($container, $locator),
-                    new XmlFileLoader($container, $locator),
-                    new YamlFileLoader($container, $locator)
+        return new TryLoader(
+            new DelegatingLoader(
+                new LoaderResolver(
+                    array(
+                        new ClosureLoader($container, $locator),
+                        new IniFileLoader($container, $locator),
+                        new PhpFileLoader($container, $locator),
+                        new XmlFileLoader($container, $locator),
+                        new YamlFileLoader($container, $locator)
+                    )
                 )
             )
         );

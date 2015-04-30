@@ -27,6 +27,19 @@ class ApplicationTest extends TestCase
     private $application;
 
     /**
+     * Verifies that we can retrieve the configuration loader.
+     *
+     * @covers \Box\Component\Console\Application::getLoader
+     */
+    public function testGetLoader()
+    {
+        self::assertInstanceOf(
+            'Box\Component\Console\Loader\TryLoader',
+            $this->application->getLoader()
+        );
+    }
+
+    /**
      * Verifies that application runs.
      *
      * @covers \Box\Component\Console\Application::createBuilder
@@ -42,24 +55,27 @@ class ApplicationTest extends TestCase
      */
     public function testRun()
     {
-        $this->application->load(
-            function (ContainerBuilder $container) {
-                $container->setParameter('box.console.auto_exit', false);
+        self::assertSame(
+            $this->application,
+            $this->application->load(
+                function (ContainerBuilder $container) {
+                    $container->setParameter('box.console.auto_exit', false);
 
-                $listener = new Definition(
-                    'Box\Component\Console\Tests\Test\EventListener'
-                );
+                    $listener = new Definition(
+                        'Box\Component\Console\Tests\Test\EventListener'
+                    );
 
-                $listener->addTag(
-                    'box.console.event.listener',
-                    array(
-                        'event' => ConsoleEvents::TERMINATE,
-                        'method' => 'sayHello'
-                    )
-                );
+                    $listener->addTag(
+                        'box.console.event.listener',
+                        array(
+                            'event' => ConsoleEvents::TERMINATE,
+                            'method' => 'sayHello'
+                        )
+                    );
 
-                $container->setDefinition('test_listener', $listener);
-            }
+                    $container->setDefinition('test_listener', $listener);
+                }
+            )
         );
 
         $input = new ArrayInput(
