@@ -61,9 +61,9 @@ class TryLoader extends Loader
         } catch (Exception $exception) {
             foreach ($this->tries as $try) {
                 try {
-                    list($resource, $type) = $try($resource, $type);
+                    list($r, $t) = $try($resource, $type);
 
-                    return $this->loader->load($resource, $type);
+                    return $this->loader->load($r, $t);
                 } catch (Exception $other) {
                 }
             }
@@ -82,9 +82,9 @@ class TryLoader extends Loader
         }
 
         foreach ($this->tries as $try) {
-            list($resource, $type) = $try($resource, $type);
+            list($r, $t) = $try($resource, $type);
 
-            if ($this->loader->supports($resource, $type)) {
+            if ($this->loader->supports($r, $t)) {
                 return true;
             }
         }

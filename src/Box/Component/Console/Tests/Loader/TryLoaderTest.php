@@ -32,6 +32,12 @@ class TryLoaderTest extends TestCase
     {
         $this->loader->addTry(
             function ($resource, $type) {
+                return array($resource . '.bad', $type);
+            }
+        );
+
+        $this->loader->addTry(
+            function ($resource, $type) {
                 return array($resource . '.dist', $type);
             }
         );
@@ -56,6 +62,12 @@ class TryLoaderTest extends TestCase
     {
         self::assertFalse($this->loader->supports('test.xml'));
         self::assertTrue($this->loader->supports('test.xml.dist'));
+
+        $this->loader->addTry(
+            function ($resource, $type) {
+                return array($resource . '.bad', $type);
+            }
+        );
 
         $this->loader->addTry(
             function ($resource, $type) {
