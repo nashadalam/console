@@ -178,6 +178,7 @@ You should end up with something like this:
 use Box\Component\Console\Application;
 
 $app = new Application('Example', '0.0.0');
+
 $app
     ->getLoader()
     ->addTry(
@@ -185,6 +186,9 @@ $app
             return array($resource . '.dist', $type);
         }
     )
+;
+
+$app
     ->load('services.xml')
     ->run()
 ;
@@ -221,6 +225,9 @@ $app
             return array($resource . '.yml.dist', $type);
         }
     )
+;
+
+$app
     ->load('services')
     ->run()
 ;
