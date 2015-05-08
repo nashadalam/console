@@ -1,5 +1,5 @@
 {
-    "name": "box-project/console",
+    "name": "nashadalam/console",
     "description": "A console application managed by a dependency injection container",
     "keywords": ["console"],
     "license": "MIT",
