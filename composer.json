@@ -39,6 +39,8 @@
         "php": ">=5.4",
         "symfony/config": "~2.4",
         "symfony/console": "~2.4",
+        "symfony/process": "~2.4",
+        "psr/log": "dev-master",
         "symfony/dependency-injection": "~2.4",
         "symfony/event-dispatcher": "~2.4",
         "symfony/expression-language": "~2.4"
